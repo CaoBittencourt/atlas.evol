@@ -20,34 +20,34 @@ chr_git <- c(
 lapply(
   chr_pkg
   , function(pkg){
-
+    
     if(!require(pkg, character.only = T)){
-
+      
       install.packages(pkg)
-
+      
     }
-
+    
     require(pkg, character.only = T)
-
+    
   }
 )
 
 # Activate / install Git packages
 Map(
   function(git, profile){
-
+    
     if(!require(git, character.only = T)){
-
+      
       install_github(
         paste0(profile, '/', git)
         , upgrade = F
         , force = T
       )
-
+      
     }
-
+    
     require(git, character.only = T)
-
+    
   }
   , git = chr_git
   , profile = names(chr_git)
@@ -93,53 +93,76 @@ read_csv(
 #   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSVdXvQMe4DrKS0LKhY0CZRlVuCCkEMHVJHQb_U-GKF21CjcchJ5jjclGSlQGYa5Q/pub?gid=1515296378&single=true&output=csv'
 # ) -> df_input
 
-# # - Interchangeability ----------------------------------------------------
-# fun_match_similarity(
-#   df_data_rows = df_occupations,
-#   df_query_rows = df_occupations,
-#   chr_method = 'bvls',
-#   dbl_scale_ub = 100,
-#   dbl_scale_lb = 0,
-#   chr_id_col = 'occupation'
-# ) -> list_similarity
-# 
-# list_similarity$
-#   mtx_similarity
-# 
-# fun_intc_interchangeability(
-#   dbl_similarity = 
-#     list_similarity$
-#     mtx_similarity
-# ) -> mtx_interchangeability
-# 
-# list_similarity$
-#   mtx_similarity %>% 
-#   as_tibble() %>% 
-#   map_df(fun_intc_interchangeability) %>% 
-#   as.matrix() -> 
-#   # mtx_dist
-#   mtx_interchangeability
-# 
-# # 1 - mtx_dist -> mtx_dist
-# 
-# # colnames(mtx_dist) ->
-# #   rownames(mtx_dist)
-# 
-# colnames(mtx_interchangeability) ->
-#   rownames(mtx_interchangeability)
-# 
-# 
-# dist(
-#   mtx_interchangeability
-#   , method = 'euclidean'
-# ) -> dist_interchangeability
-# 
-# hclust(dist_interchangeability) -> list_hclust
-# 
-# 
-# 
-# 
-# 
+# - Interchangeability ----------------------------------------------------
+fun_match_similarity(
+  df_data_rows = 
+    df_occupations[1:10,] %>% 
+    select(
+      occupation,
+      starts_with('item')
+    )
+  , df_query_rows = 
+    df_occupations[1:10,] %>% 
+    select(
+      occupation,
+      starts_with('item')
+    )
+  , chr_method = 'logit'
+  , dbl_scale_ub = 100
+  , dbl_scale_lb = 0
+  , chr_id_col = 'occupation'
+) -> list_similarity
+
+list_similarity$
+  mtx_similarity %>% 
+  select(
+    occupation,
+    similarity
+  ) -> df_similarity
+
+list_similarity$
+  mtx_similarity %>% 
+  View()
+
+df_similarity
+
+list_similarity$
+  mtx_similarity
+
+fun_intc_interchangeability(
+  dbl_similarity =
+    list_similarity$
+    mtx_similarity
+) -> mtx_interchangeability
+
+list_similarity$
+  mtx_similarity %>%
+  as_tibble() %>%
+  map_df(fun_intc_interchangeability) %>%
+  as.matrix() ->
+  # mtx_dist
+  mtx_interchangeability
+
+# 1 - mtx_dist -> mtx_dist
+
+# colnames(mtx_dist) ->
+#   rownames(mtx_dist)
+
+colnames(mtx_interchangeability) ->
+  rownames(mtx_interchangeability)
+
+
+dist(
+  mtx_interchangeability
+  , method = 'euclidean'
+) -> dist_interchangeability
+
+hclust(dist_interchangeability) -> list_hclust
+
+
+
+
+
 
 # - Competence ------------------------------------------------------------
 df_occupations %>% 
